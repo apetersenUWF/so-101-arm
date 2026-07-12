@@ -11,10 +11,34 @@ with ST3215(PORT) as controller:
         servos = []
         for servo_id in servo_ids:
             servos.append(controller.wrap_servo(servo_id))
-        while True:
-            current_positions = []
-            for servo in servos:
-                current_positions.append(servo.sram.read_current_location())
-            for i in range(len(servo_names)):
-                print(f"{servo_names[i]} current position: {current_positions[i]}")
-            time.sleep(0.5)
+        for i in range(len(servos)):
+            servos[i].sram.torque_disable()
+        for i in [4]:
+            print(f"Move ({servo_names[i]}) to the middle of its range of motion")
+            confirm = input("Press enter to confirm location")
+            servos[i].sram.correct_position_to_2048()
+            print(f"({servo_names[i]}) midpoint succesfully updated!")
+            print(f"Move ({servo_names[i]}) to the minimum point in its range of motion")
+            time.sleep(2)
+            print("Begin!")
+            for j in range(100):
+                position = servos[i].sram.read_current_location()
+                print(position)
+                time.sleep(0.1)
+            confirm2 = input(f"When ({servo_names[i]}) is in the minimum point in its range of motion press enter")
+            servos[i].eeprom.write_min_angle_limit(servos[i].sram.read_current_location())
+            print(f"Move ({servo_names[i]}) to the maximum point in its range of motion")
+            time.sleep(2)
+            print("Begin!")
+            for j in range(100):
+                position = servos[i].sram.read_current_location()
+                print(position)
+                time.sleep(0.1)
+            confirm2 = input(f"When ({servo_names[i]}) is in the maximum point in its range of motion press enter")
+            servos[i].eeprom.write_max_angle_limit(servos[i].sram.read_current_location())
+        print("Servo, Min, Current, Max")
+        for i in range(len(servos)):
+            min = servos[i].eeprom.read_min_angle_limit()
+            current_loc = servos[i].sram.read_current_location()
+            max = servos[i].eeprom.read_max_angle_limit()
+            print(f"({servo_names[i]}) {min} {current_loc} {max}")
