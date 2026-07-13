@@ -13,7 +13,7 @@ with ST3215(PORT) as controller:
             servos.append(controller.wrap_servo(servo_id))
         for i in range(len(servos)):
             servos[i].sram.torque_disable()
-        for i in [4]:
+        for i in range(len(servos)):
             print(f"Move ({servo_names[i]}) to the middle of its range of motion")
             confirm = input("Press enter to confirm location")
             servos[i].sram.correct_position_to_2048()
